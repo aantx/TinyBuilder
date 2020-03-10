@@ -17,20 +17,22 @@
 # $w.ElapsedMillisecondss
 $VersionOld=[System.Version]::new(1, 0, 0, 0)
 
-#обыграть отсутствие файла
+#Predict non-existing file
 $VersionOld = (Get-Item .\*.exe).VersionInfo.ProductVersionRaw
 
-#[System.Version]::new($VersionOld.Major, $VersionOld.Minor, $VersionOld.Build, $VersionOld.Revision)
+$Major = $VersionOld.Major
+$Minor = $VersionOld.Minor
+$Build = $VersionOld.Build
+$Revision = $VersionOld.Revision
+
+#checkout to master
 $a = git log --format="%ai" -n 1 -- .\MonitorHw.exe
-git log --format="%B" --since $a --reverse -- .\MonitorHw.ps1 | Where-Object { $_ -ne "" } |
-    ForEach-Object {
-        if ($_ -match "-A") {$Major=$VersionOld.Major + 1; $Minor=0; $Build = 0
-            $Revision = 0
-            elseif ($_ -match "-B") { $Minor = $VersionOld.Minor + 1; $Build = 0
-            $Revision =0}
-            elseif ($_ -match "-C") { $Build = $VersionOld.Build + 1
-                $Revision = 0}
-            else $Revision = $VersionOld.Revision + 1 }
+git log --format="%B" --since $a --reverse -- .\MonitorHw.ps1 |
+Where-Object { $_ -ne "" } | ForEach-Object {
+        if ($_ -match "-A") {$Major+=1; $Minor=0; $Build = 0;$Revision = 0}
+        elseif ($_ -match "-B") { $Minor+=1; $Build = 0; $Revision =0}
+        elseif ($_ -match "-C") { $Build+=1; $Revision = 0}
+        else {$Revision+=1}
     }
-$VersionNew = [System.Version]::new($Major, $Minor, $Build, $revision -join ".")
-$VersionNew
+$VersionNew = [System.Version]::new($Major, $Minor, $Build, $Revision -join ".")
+(Get-Content .\*.ps1) -replace $VersionOld.ToString(),$VersionNew.ToString()|Write-Host
