@@ -1,0 +1,22 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "BuildExe",
+            "type": "shell",
+            "command": "D:\\prg\\Powershell\\TinyBuilder\\TB.ps1",
+            "args": [
+                "${fileDirname}",
+                "${fileBasenameNoExtension}"
+            ],
+            "presentation": {
+                "reveal": "new",
+                "echo": true
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
