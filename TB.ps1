@@ -22,5 +22,5 @@ git log --format="%B" --reverse --since=$LastExeDate -- *.ps1 |
 $VersionNew = [System.Version]::new($Major, $Minor, $Build, $Revision -join ".")
 $VersionNew
 (Get-Content .\$File.ps1) -replace $VersionOld.ToString(), $VersionNew.ToString()|
-Set-Content .\$File.ps1 -Force
+Set-Content .\$File.ps1 -Force -Encoding "UTF8"
 ps2exe -inputFile $Path\$File.ps1 -outputFile $Path\$File.exe -x64 -requireAdmin -iconFile $Path\icon.ico -title $File -product $File -copyright SPK -trademark SPK -company SPK  -description "Мониторинг оборудования компьютера" -version "$VersionNew"
