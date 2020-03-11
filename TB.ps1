@@ -15,8 +15,8 @@ $Build = $VersionOld.Build
 $Revision = $VersionOld.Revision
 
 #checkout to master
-$LastExeDate = git log --format="%ai" "-n 1 -- .\$File.exe"
-git log --format="%B" --reverse "--since=$LastExeDate -- .\$File.ps1" |
+$LastExeDate = git log --format="%ai" -n 1 -- *.exe
+git log --format="%B" --reverse --since=$LastExeDate -- *.ps1 |
     Where-Object { $_ -ne "" } | ForEach-Object {
             if ($_ -match "-A") {$Major+=1; $Minor=0; $Build = 0;$Revision = 0}
                 elseif ($_ -match "-B") { $Minor+=1; $Build = 0; $Revision =0}
