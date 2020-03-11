@@ -1,10 +1,13 @@
 ﻿#Remove-Variable * -Scope local -ErrorAction SilentlyContinue
-Set-Location D:\prg\Powershell\MonitorHW
+#param($Path, $File)
+$Path ="D:\prg\Powershell\MonitorHW"
+$File ="MonitorHW"
+Set-Location $Path
 
 $VersionOld=[System.Version]::new(1, 0, 0, 0)
 
 #Predict non-existing file
-$VersionOld = (Get-Item .\MonitorHw.exe).VersionInfo.ProductVersionRaw
+$VersionOld = (Get-Item .\$File.exe).VersionInfo.ProductVersionRaw
 
 $Major = $VersionOld.Major
 $Minor = $VersionOld.Minor
@@ -12,8 +15,8 @@ $Build = $VersionOld.Build
 $Revision = $VersionOld.Revision
 
 #checkout to master
-$a = git log --format="%ai" -n 1 -- .\MonitorHw.exe
-git log --format="%B" --since $a --reverse -- .\MonitorHw.ps1 |
+$LastExeDate = git log --format="%ai" "-n 1 -- .\$File.exe"
+git log --format="%B" --reverse "--since=$LastExeDate -- .\$File.ps1" |
     Where-Object { $_ -ne "" } | ForEach-Object {
             if ($_ -match "-A") {$Major+=1; $Minor=0; $Build = 0;$Revision = 0}
                 elseif ($_ -match "-B") { $Minor+=1; $Build = 0; $Revision =0}
@@ -21,7 +24,7 @@ git log --format="%B" --since $a --reverse -- .\MonitorHw.ps1 |
             else {$Revision+=1}
         }
 $VersionNew = [System.Version]::new($Major, $Minor, $Build, $Revision -join ".")
-
-(Get-Content .\MonitorHw.ps1) -replace $VersionOld.ToString(), $VersionNew.ToString()|
+$VersionNew
+(Get-Content .\$File.ps1) -replace $VersionOld.ToString(), $VersionNew.ToString()|
     out-null #Write-Host
-#ps2exe -inputFile $Path\MonitorHw.ps1 -outputFile $Path\MonitorHw.exe -x64 -requireAdmin -iconFile $Path\5.ico -title MonitorHW -product MonitorHW -copyright SPK -trademark SPK -company SPK  -description "Мониторинг оборудования компьютера" -version "$b"
+#ps2exe -inputFile $Path\$File.ps1 -outputFile $Path\$File.exe -x64 -requireAdmin -iconFile $Path\5.ico -title $File -product $File -copyright SPK -trademark SPK -company SPK  -description "Мониторинг оборудования компьютера" -version "$b"
