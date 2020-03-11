@@ -9,6 +9,7 @@ if ($env:Path -notmatch "TinyBuilder") {
         exit
     }
     $env:Path += ";$PSScriptRoot\TinyBuilder"
+    
     [System.Windows.Forms.Messagebox]::Show("Installed successfully")
 }
 else {
