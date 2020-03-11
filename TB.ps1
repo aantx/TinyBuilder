@@ -3,8 +3,10 @@ Set-Location $Path
 $VersionOld=[System.Version]::new(1, 0, 0, 0)
 
 #Predict non-existing file
-$VersionOld = (Get-Item .\$File.exe).VersionInfo.ProductVersionRaw
 
+$OldFileAttr=(Get-Item .\$File.exe).VersionInfo
+
+$VersionOld = $OldFileAttr.ProductVersionRaw
 $Major = $VersionOld.Major
 $Minor = $VersionOld.Minor
 $Build = $VersionOld.Build
@@ -23,4 +25,4 @@ $VersionNew = [System.Version]::new($Major, $Minor, $Build, $Revision -join ".")
 $VersionNew
 (Get-Content .\$File.ps1) -replace $VersionOld.ToString(), $VersionNew.ToString()|
 Set-Content .\$File.ps1 -Force -Encoding "UTF8"
-ps2exe -inputFile $Path\$File.ps1 -outputFile $Path\$File.exe -x64 -requireAdmin -iconFile $Path\icon.ico -title $File -product $File -copyright SPK -trademark SPK -company SPK  -description "Мониторинг оборудования компьютера" -version "$VersionNew"
+ps2exe -inputFile $Path\$File.ps1 -outputFile $Path\$File.exe -x64 -requireAdmin -iconFile $Path\icon.ico -title $File -product $File -copyright $OldFileAttr.LegalCopyright -trademark $OldFileAttr.LegalTrademarks -company $OldFileAttr.CompanyName  -description $OldFileAttr.Comments -version "$VersionNew"
