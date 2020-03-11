@@ -4,7 +4,7 @@
         {
             "label": "BuildExe",
             "type": "shell",
-            "command": "D:\\prg\\Powershell\\TinyBuilder\\TB.ps1",
+            "command": "TB.ps1",
             "args": [
                 "${fileDirname}",
                 "${fileBasenameNoExtension}"
