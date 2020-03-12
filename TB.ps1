@@ -13,16 +13,19 @@ $Build = $VersionOld.Build
 $Revision = $VersionOld.Revision
 
 #checkout to master
-$LastExeDate = git log --format="%ai" -n 1 -- *.exe
-git log --format="%B" --reverse --since=$LastExeDate -- *.ps1 |
+$CountCommits=0
+$LastExeDate = git log --format="%ai" -n 1 -- .\$File.exe
+git log --format="%B" --reverse --since=$LastExeDate -- .\$File.ps1 |
     Where-Object { $_ -ne "" } | ForEach-Object {
             if ($_ -match "-A") {$Major+=1; $Minor=0; $Build = 0;$Revision = 0}
             elseif ($_ -match "-B") { $Minor+=1; $Build = 0; $Revision =0}
             elseif ($_ -match "-C") { $Build+=1; $Revision = 0}
             else {$Revision+=1}
+            CountCommits
         }
 $VersionNew = [System.Version]::new($Major, $Minor, $Build, $Revision -join ".")
 $VersionNew
 (Get-Content .\$File.ps1) -replace $VersionOld.ToString(), $VersionNew.ToString()|
 Set-Content .\$File.ps1 -Force -Encoding "UTF8"
-ps2exe -inputFile $Path\$File.ps1 -outputFile $Path\$File.exe -x64 -requireAdmin -iconFile $Path\icon.ico -title $File -product $File -copyright $OldFileAttr.LegalCopyright -trademark $OldFileAttr.LegalTrademarks -company $OldFileAttr.CompanyName  -description $OldFileAttr.Comments -version "$VersionNew"
+#ps2exe -inputFile $Path\$File.ps1 -outputFile $Path\$File.exe -x64 -requireAdmin -iconFile $Path\icon.ico -title $File -product $File -copyright $OldFileAttr.LegalCopyright -trademark $OldFileAttr.LegalTrademarks -company $OldFileAttr.CompanyName  -description $OldFileAttr.Comments -version "$VersionNew"
+$ansnew = git diff  $k HEAD .\MonitorHw.ps1
