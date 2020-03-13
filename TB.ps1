@@ -25,9 +25,12 @@ git log --format="%B" --reverse --since=$LastExeDate -- .\$File.ps1 |
         }
 $VersionNew = [System.Version]::new($Major, $Minor, $Build, $Revision -join ".")
 $VersionNew
-(Get-Content .\$File.ps1) -replace $VersionOld.ToString(), $VersionNew.ToString()|
+(Get-Content .\$File.ps1) `
+#-replace $VersionOld.ToString(), $VersionNew.ToString()
+    -replace "([В-я]{6})\:([0-9]*\.){3}[0-9]\n",('$1:'+$VersionNew.ToString()) |
 Set-Content .\$File.ps1 -Force -Encoding "UTF8"
 ps2exe -inputFile $Path\$File.ps1 -outputFile $Path\$File.exe -x64 -requireAdmin -iconFile $Path\icon.ico -title $File -product $File -copyright $OldFileAttr.LegalCopyright -trademark $OldFileAttr.LegalTrademarks -company $OldFileAttr.CompanyName  -description $OldFileAttr.Comments -version "$VersionNew"
 
 $ChangeLog = git diff  $PrevVersion HEAD .\MonitorHw.ps1
 $ChangeLog | Set-Content .\ChangeLog.md -Encoding "OEM"
+
