@@ -39,6 +39,8 @@ git log --format="%B" --reverse --since=$LastExeDate -- .\$File.ps1 |
     }
 $VersionNew = [System.Version]::new($Major, $Minor, $Build, $Revision -join ".")
 $VersionNew
+[Console]::OutputEncoding = [System.Text.Encoding]::GetEncoding("UTF-8")
+
 $GitOut = '$1: ' + (git log -1 --format="%B" -- .\$File.ps1) #| ConvertTo-Encoding "cp866" "utf-8"
 
 $ScriptBody=Get-Content .\$File.ps1 -Encoding "UTF8"
