@@ -1,6 +1,18 @@
 ﻿param($Path, $File)
 #$Path = "D:\prg\Powershell\MonitorHW"
 #$File="MonitorHw"
+function ConvertTo-Encoding ([string]$From, [string]$To) {
+    Begin {
+        $encFrom = [System.Text.Encoding]::GetEncoding($from)
+        $encTo = [System.Text.Encoding]::GetEncoding($to)
+    }
+    Process {
+        $bytes = $encTo.GetBytes($_)
+        $bytes = [System.Text.Encoding]::Convert($encFrom, $encTo, $bytes)
+        $encTo.GetString($bytes)
+    }
+}
+
 Set-Location $Path -ErrorAction Stop
 $VersionOld=[System.Version]::new(1, 0, 0, 0)
 
@@ -27,11 +39,12 @@ git log --format="%B" --reverse --since=$LastExeDate -- .\$File.ps1 |
     }
 $VersionNew = [System.Version]::new($Major, $Minor, $Build, $Revision -join ".")
 $VersionNew
-$gitOut='$1: ' + (git log -1 --format="%B" -- .\$File.ps1)
+$GitOut = '$1: ' + (git log -1 --format="%B" -- .\$File.ps1) #| ConvertTo-Encoding "cp866" "utf-8"
+
 $ScriptBody=Get-Content .\$File.ps1 -Encoding "UTF8"
 foreach ($i in (0..100)){
     $ScriptBody[$i] = ([regex] "(Версия)\:([0-9]*\.){3}[0-9]*").Replace($ScriptBody[$i], '$1:' + $VersionNew.ToString(), 1)
-    $ScriptBody[$i] = ([regex] "(Изменения)\: ([ \w\.\,\:A-zА-я]*)").Replace($ScriptBody[$i], $gitOut , 1)
+    $ScriptBody[$i] = ([regex] "(Изменения)\: ([ \w\.\,\:A-zА-я]*)").Replace($ScriptBody[$i], $GitOut , 1)
     $ScriptBody[$i] = ([regex] "(создания)\:([0-9]{2}\.){2}[0-9]{4}").Replace($ScriptBody[$i], '$1:' + (Get-Date -Format "dd.MM.yyyy").ToString(), 1)
 }
 #$ScriptBody> .\1.txt
