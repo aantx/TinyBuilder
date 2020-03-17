@@ -76,5 +76,7 @@ ps2exe -inputFile $Path\$File.ps1 -outputFile $Path\$File.exe -x64 -requireAdmin
     -company $OldFileAttr.CompanyName  -description $OldFileAttr.Comments `
     -version "$VersionNew"|Out-Null
 
+[Console]::OutputEncoding = [System.Text.Encoding]::GetEncoding("cp866")
+
 $ChangeLog = git diff  $PrevVersion HEAD .\$File.ps1
 $ChangeLog | Set-Content .\ChangeLog.md -Encoding "OEM"
