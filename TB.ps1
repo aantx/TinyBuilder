@@ -1,21 +1,20 @@
 ﻿param($Path, $File)
 #$Path = "D:\prg\Powershell\MonitorHW"
 #$File="MonitorHw"
-function ConvertTo-Encoding ([string]$From, [string]$To) {
-    Begin {
-        $encFrom = [System.Text.Encoding]::GetEncoding($from)
-        $encTo = [System.Text.Encoding]::GetEncoding($to)
-    }
-    Process {
-        $bytes = $encTo.GetBytes($_)
-        $bytes = [System.Text.Encoding]::Convert($encFrom, $encTo, $bytes)
-        $encTo.GetString($bytes)
-    }
-}
-
 Set-Location $Path -ErrorAction Stop
 $VersionOld=[System.Version]::new(1, 0, 0, 0)
 
+if (-not (Test-Path -Path .\$File.exe)){
+    Write-Host "Исполняемый файл не найден. Введите"
+    $Major = Read-Host "Введите мажорную версию:"
+    $Minor = Read-Host "Введите минорную версию:"
+    $Build = Read-Host "Введите версию билда:"
+    $Revision = Read-Host "Введите номер ревизии:"
+    $VersionNew = [System.Version]::new($Major, $Minor, $Build, $Revision -join ".")
+    ps2exe -inputFile $Path\$File.ps1 -outputFile $Path\$File.exe -x64 -requireAdmin `
+        -title $File -product $File -version "$VersionNew" | Out-Null
+    exit
+}
 #Predict non-existing file
 
 $OldFileAttr=(Get-Item .\$File.exe).VersionInfo
@@ -41,9 +40,10 @@ $VersionNew = [System.Version]::new($Major, $Minor, $Build, $Revision -join ".")
 $VersionNew
 [Console]::OutputEncoding = [System.Text.Encoding]::GetEncoding("UTF-8")
 
-$GitOut = '$1: ' + (git log -1 --format="%B" -- .\$File.ps1) #| ConvertTo-Encoding "cp866" "utf-8"
+$GitOut = '$1: ' + (git log -1 --format="%B" -- .\$File.ps1)
 
 $ScriptBody=Get-Content .\$File.ps1 -Encoding "UTF8"
+#hardcoded synopsis. it supposed to be in first 100 strs of script.
 foreach ($i in (0..100)){
     $ScriptBody[$i] = ([regex] "(Версия)\:([0-9]*\.){3}[0-9]*").Replace($ScriptBody[$i], '$1:' + $VersionNew.ToString(), 1)
     $ScriptBody[$i] = ([regex] "(Изменения)\: ([ \w\.\,\:A-zА-я]*)").Replace($ScriptBody[$i], $GitOut , 1)
